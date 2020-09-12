@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# <one line to give the program's name and a brief idea of what it does.>
+# Copyright (C) <year>  <name of author>
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# exit the script, if a failure occured during a program execution
+set -e
+
+# change to nextcloud directory
+DIR="$1"
+
+# help screen
+if ! [ "$#" -eq 1 ] ; then
+    echo "Nextcloud auto updater"
+    echo "Copyright (C) 2020 Alexander Böhm <alexander.boehm@malbolge.net>"
+    echo "License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>"
+    echo ""
+    echo "This script run an unattended update for installed nextcloud apps, the"
+    echo "nextcloud installation itself and runs database fixes"
+    echo ""
+    echo "Usage: $0 <NEXTCLOUD_DIRECTORY>"
+    echo ""
+    exit 1
+fi
+
+# check if the first parameter is a path to a existing directory
+if ! [ -d "$DIR" ] ; then
+    echo Parameter $DIR is not a directory.
+    exit 1
+fi
+
+# jump into nextcloud installation directory
+cd "$1"
+
+# do a basic check on common nextcloud files
+for f in index.php occ updater/updater.phar ; do
+    if ! [ -f $f ] ; then
+        echo "File $f is missing. Maybe `pwd` is not a Nextcloud installation"
+        exit 1
+    fi
+done
+
+# update all apps
+php occ app:update --all
+
+# check for an available nextcloud update
+if [ -z "`php occ update:check |grep 'update available'`" ] ; then
+    exit 0
+fi
+
+# update nextcloud
+echo "Update available, start Nextcloud auto update"
+cd updater
+php updater.phar -n
+
+cd ..
+
+# do some database fixes
+php occ db:add-missing-indices
+php occ db:add-missing-columns
