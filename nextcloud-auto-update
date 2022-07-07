@@ -56,10 +56,10 @@ done
 # update all apps
 php occ app:update --all
 
-# check for an available nextcloud update
-if [ -z "`php occ update:check |grep 'update available'`" ] ; then
-    exit 0
-fi
+## check for an available nextcloud update
+#if [ -z "`php occ update:check |grep 'update available'`" ] ; then
+#    exit 0
+#fi
 
 # update nextcloud
 echo "Update available, start Nextcloud auto update"
