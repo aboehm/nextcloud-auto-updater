@@ -9,7 +9,7 @@ nextcloud installation itself and runs database fixes.
 nextcloud-auto-update <NEXTCLOUD_DIRECTORY>
 ```
 
-To run it peridically with *CRON*:
+To run it periodically with *CRON*:
 
 ```
 0 3 * * *	www-data    <PATH_TO_NEXTCLOUD_AUTO_UPDATE> <NEXTCLOUD_DIRECTORY>
